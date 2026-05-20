@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  employee-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: employee-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - employee-network
+
+networks:
+  employee-network:
+    driver: bridge

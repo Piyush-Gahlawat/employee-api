@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  employee-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        - VCS_REF=$(git rev-parse --short HEAD)
+    container_name: employee-api
+    image: employee-api:latest
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
+      - JAVA_OPTS=${JAVA_OPTS:--Xmx512m -Xms256m}
+      - SERVER_PORT=8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - employee-network
+    # Optional: Uncomment to mount application logs
+    # volumes:
+    #   - ./logs:/app/logs
+    labels:
+      description: "Employee Management REST API"
+      version: "0.0.1"
+
+networks:
+  employee-network:
+    driver: bridge

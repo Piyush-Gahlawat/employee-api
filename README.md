@@ -87,7 +87,56 @@ cd employee-api
 
 The application will start on `http://localhost:8080`
 
-## 🔌 API Endpoints
+## � Docker & Containerization
+
+### Quick Start with Docker Compose
+
+```bash
+# Build and start the container
+docker-compose up --build
+
+# Stop the container
+docker-compose down
+
+# View logs
+docker-compose logs -f employee-api
+```
+
+### Build Docker Image
+
+```bash
+# Build the image
+docker build -t employee-api:latest .
+
+# Run the container
+docker run -p 8080:8080 employee-api:latest
+```
+
+### Dockerfile Options
+
+- **Dockerfile** - Multi-stage build with Alpine Linux (recommended, ~200MB)
+- **Dockerfile.slim** - Alternative with explicit Docker registry
+
+For detailed Docker documentation, see [DOCKER.md](DOCKER.md)
+
+### Kubernetes Deployment
+
+Deploy to Kubernetes using the provided manifest:
+
+```bash
+kubectl apply -f k8s-deployment.yaml
+```
+
+The manifest includes:
+- Deployment with 3 replicas
+- Service exposure
+- Horizontal Pod Autoscaler (HPA)
+- Resource limits and health checks
+- Security best practices
+
+See [k8s-deployment.yaml](k8s-deployment.yaml) for details.
+
+## �🔌 API Endpoints
 
 ### Get All Employees
 ```
