@@ -1,6 +1,8 @@
 package com.example.employeeapi.repository;
 
 import com.example.employeeapi.model.Employee;
+import com.example.employeeapi.repository.EmployeeRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

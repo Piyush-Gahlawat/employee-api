@@ -7,9 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
@@ -19,18 +20,20 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 @DisplayName("Employee Controller Tests")
 class EmployeeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @MockBean
     private EmployeeService employeeService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -40,7 +43,6 @@ class EmployeeControllerTest {
 
     @BeforeEach
     void setUp() {
-        
         employee = new Employee();
         employee.setId(1L);
         employee.setName("John Doe");
@@ -63,7 +65,7 @@ class EmployeeControllerTest {
         when(employeeService.getAllEmployees()).thenReturn(employees);
 
         mockMvc.perform(get("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name", equalTo("John Doe")))
@@ -78,7 +80,7 @@ class EmployeeControllerTest {
         when(employeeService.getAllEmployees()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
 
@@ -91,7 +93,7 @@ class EmployeeControllerTest {
         when(employeeService.getEmployeeById(1L)).thenReturn(Optional.of(employee));
 
         mockMvc.perform(get("/api/employees/1")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.name", equalTo("John Doe")))
@@ -107,7 +109,7 @@ class EmployeeControllerTest {
         when(employeeService.getEmployeeById(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/employees/999")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
         verify(employeeService, times(1)).getEmployeeById(999L);
@@ -125,8 +127,8 @@ class EmployeeControllerTest {
         when(employeeService.createEmployee(any(Employee.class))).thenReturn(employee);
 
         mockMvc.perform(post("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newEmployee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newEmployee)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", equalTo("John Doe")))
                 .andExpect(jsonPath("$.email", equalTo("john.doe@example.com")));
@@ -144,8 +146,8 @@ class EmployeeControllerTest {
         invalidEmployee.setEmail("invalid-email");
 
         mockMvc.perform(post("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidEmployee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidEmployee)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -156,8 +158,8 @@ class EmployeeControllerTest {
         incompleteEmployee.setName("Charlie Brown");
 
         mockMvc.perform(post("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(incompleteEmployee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(incompleteEmployee)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -177,11 +179,12 @@ class EmployeeControllerTest {
         updated.setSalary(120000.0);
         updated.setEmail("john.updated@example.com");
 
-        when(employeeService.updateEmployee(1L, updatedEmployee)).thenReturn(Optional.of(updated));
+        // Fixed: use matchers for both arguments (eq for ID, any for Employee)
+        when(employeeService.updateEmployee(eq(1L), any(Employee.class))).thenReturn(Optional.of(updated));
 
         mockMvc.perform(put("/api/employees/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedEmployee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedEmployee)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo("John Doe Updated")))
                 .andExpect(jsonPath("$.position", equalTo("Lead Developer")));
@@ -198,11 +201,12 @@ class EmployeeControllerTest {
         updatedEmployee.setSalary(110000.0);
         updatedEmployee.setEmail("jane@example.com");
 
-        when(employeeService.updateEmployee(999L, updatedEmployee)).thenReturn(Optional.empty());
+        // Fixed: use matchers
+        when(employeeService.updateEmployee(eq(999L), any(Employee.class))).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/employees/999")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedEmployee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedEmployee)))
                 .andExpect(status().isNotFound());
 
         verify(employeeService, times(1)).updateEmployee(anyLong(), any(Employee.class));
@@ -211,8 +215,11 @@ class EmployeeControllerTest {
     @Test
     @DisplayName("DELETE /api/employees/{id} - Should delete employee successfully")
     void testDeleteEmployee() throws Exception {
+        // Improved: explicitly mock void method
+        doNothing().when(employeeService).deleteEmployee(1L);
+
         mockMvc.perform(delete("/api/employees/1")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(employeeService, times(1)).deleteEmployee(1L);
@@ -228,9 +235,8 @@ class EmployeeControllerTest {
         invalidEmployee.setEmail("david.lee@example.com");
 
         mockMvc.perform(post("/api/employees")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidEmployee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidEmployee)))
                 .andExpect(status().isBadRequest());
     }
-
 }
