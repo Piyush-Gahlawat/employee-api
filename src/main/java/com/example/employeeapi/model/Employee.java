@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "employees")
@@ -29,6 +30,7 @@ public class Employee {
     private String position;
     @NotNull(message = "Salary is required")
     @Column(nullable = false)
+    @PositiveOrZero(message = "Salary must be zero or positive")
     private Double salary;
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
