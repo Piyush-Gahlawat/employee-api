@@ -17,7 +17,7 @@ A production-ready REST API built with Spring Boot for managing employee records
 ## 🛠️ Tech Stack
 
 - **Java**: 21 (LTS)
-- **Spring Boot**: 4.0.6
+- **Spring Boot**: 3.4.3
 - **Spring Data JPA**: Data access layer
 - **Spring Test**: Integration and unit testing
 - **Spring Validation**: Jakarta Bean Validation API
