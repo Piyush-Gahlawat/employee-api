@@ -22,8 +22,11 @@ public class EmployeeService {
     }
 
     public Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
-    }
+        if (employee == null) {
+            throw new NullPointerException("Employee cannot be null");
+        }
+    return employeeRepository.save(employee);
+    } 
 
     public Optional<Employee> updateEmployee(Long id, Employee updatedEmployee) {
         return employeeRepository.findById(id).map(employee -> {
