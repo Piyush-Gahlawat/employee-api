@@ -1,5 +1,7 @@
 # Employee Management REST API
 
+[![Java CI with Maven](https://github.com/Piyush-Gahlawat/employee-api/actions/workflows/maven-test.yml/badge.svg)](https://github.com/Piyush-Gahlawat/employee-api/actions/workflows/maven-test.yml)
+
 A production-ready REST API built with Spring Boot for managing employee records. Supports full CRUD operations with a layered architecture following industry best practices. Includes comprehensive unit tests, custom exception handling, and validation.
 
 ## 🚀 Features
